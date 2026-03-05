@@ -26,3 +26,9 @@ class User(Base):
     password = Column(String, nullable=False)
     role = Column(String, default="owner")
 
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, unique=True, index=True)
+    user_id = Column(Integer)
