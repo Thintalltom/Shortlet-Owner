@@ -1,4 +1,4 @@
-import { User, Property, Application } from '../types';
+import { User, Property, Application, Booking, Commission } from '../types';
 
 export const mockUsers: User[] = [
 {
@@ -70,6 +70,37 @@ export const mockUsers: User[] = [
   profileImage: 'https://i.pravatar.cc/150?img=8',
   whatsapp: '+2348067890123',
   createdAt: '2024-03-05T10:00:00Z'
+},
+{
+  id: 'user-1',
+  name: 'Ngozi Ibe',
+  email: 'ngozi@example.com',
+  phone: '+2348078901234',
+  role: 'user',
+  trustedStatus: 'none',
+  bio: 'Frequent traveler',
+  profileImage: 'https://i.pravatar.cc/150?img=20',
+  createdAt: '2024-03-10T10:00:00Z'
+},
+{
+  id: 'user-2',
+  name: 'Yusuf Bello',
+  email: 'yusuf@example.com',
+  phone: '+2348089012345',
+  role: 'user',
+  trustedStatus: 'none',
+  bio: 'Business traveler',
+  profileImage: 'https://i.pravatar.cc/150?img=12',
+  createdAt: '2024-03-15T10:00:00Z'
+},
+{
+  id: 'admin-1',
+  name: 'Admin',
+  email: 'admin@shortletconnect.ng',
+  phone: '+2340000000000',
+  role: 'admin',
+  trustedStatus: 'none',
+  createdAt: '2024-01-01T10:00:00Z'
 }];
 
 
@@ -104,6 +135,10 @@ export const mockProperties: Property[] = [
   ownerId: 'owner-1',
   agentId: 'agent-1',
   status: 'active',
+  availableFrom: '2024-03-01T00:00:00Z',
+  availableTo: '2024-12-31T00:00:00Z',
+  bookingStatus: 'booked',
+  commissionPaid: false,
   isFeatured: true,
   featuredUntil: '2025-12-31T00:00:00Z',
   boostedUntil: '2025-04-30T00:00:00Z',
@@ -137,6 +172,10 @@ export const mockProperties: Property[] = [
   manageType: 'owner',
   ownerId: 'owner-1',
   status: 'active',
+  availableFrom: '2024-03-01T00:00:00Z',
+  availableTo: '2024-12-31T00:00:00Z',
+  bookingStatus: 'available',
+  commissionPaid: true,
   isFeatured: true,
   featuredUntil: '2025-12-31T00:00:00Z',
   viewsCount: 218,
@@ -169,6 +208,10 @@ export const mockProperties: Property[] = [
   ownerId: 'owner-1',
   agentId: 'agent-3',
   status: 'active',
+  availableFrom: '2024-03-01T00:00:00Z',
+  availableTo: '2024-12-31T00:00:00Z',
+  bookingStatus: 'available',
+  commissionPaid: true,
   isFeatured: false,
   boostedUntil: '2025-04-20T00:00:00Z',
   viewsCount: 89,
@@ -201,6 +244,10 @@ export const mockProperties: Property[] = [
   manageType: 'owner',
   ownerId: 'owner-1',
   status: 'active',
+  availableFrom: '2024-03-01T00:00:00Z',
+  availableTo: '2024-12-31T00:00:00Z',
+  bookingStatus: 'available',
+  commissionPaid: true,
   isFeatured: false,
   viewsCount: 156,
   isReported: false,
@@ -236,6 +283,10 @@ export const mockProperties: Property[] = [
   ownerId: 'owner-2',
   agentId: 'agent-2',
   status: 'active',
+  availableFrom: '2024-03-01T00:00:00Z',
+  availableTo: '2024-12-31T00:00:00Z',
+  bookingStatus: 'booked',
+  commissionPaid: true,
   isFeatured: true,
   featuredUntil: '2025-12-31T00:00:00Z',
   viewsCount: 287,
@@ -268,6 +319,10 @@ export const mockProperties: Property[] = [
   manageType: 'owner',
   ownerId: 'owner-2',
   status: 'active',
+  availableFrom: '2024-03-01T00:00:00Z',
+  availableTo: '2024-12-31T00:00:00Z',
+  bookingStatus: 'available',
+  commissionPaid: true,
   isFeatured: false,
   viewsCount: 74,
   isReported: false,
@@ -293,6 +348,10 @@ export const mockProperties: Property[] = [
   ownerId: 'owner-2',
   agentId: 'agent-2',
   status: 'active',
+  availableFrom: '2024-03-01T00:00:00Z',
+  availableTo: '2024-12-31T00:00:00Z',
+  bookingStatus: 'available',
+  commissionPaid: true,
   isFeatured: false,
   viewsCount: 43,
   isReported: false,
@@ -324,6 +383,10 @@ export const mockProperties: Property[] = [
   manageType: 'owner',
   ownerId: 'owner-1',
   status: 'active',
+  availableFrom: '2024-03-01T00:00:00Z',
+  availableTo: '2024-12-31T00:00:00Z',
+  bookingStatus: 'available',
+  commissionPaid: true,
   isFeatured: false,
   viewsCount: 198,
   isReported: false,
@@ -394,4 +457,56 @@ export const mockApplications: Application[] = [
   'I am very interested in managing this duplex. I have connections with corporate clients who need family-sized accommodations.',
   status: 'pending',
   createdAt: '2024-03-12T10:00:00Z'
+}];
+
+
+export const mockBookings: Booking[] = [
+{
+  id: 'book-1',
+  propertyId: 'prop-1',
+  userId: 'user-1',
+  ownerId: 'owner-1',
+  agentId: 'agent-1',
+  status: 'confirmed',
+  checkIn: '2024-04-10',
+  checkOut: '2024-04-15',
+  totalPrice: 325000,
+  commissionAmount: 9750,
+  commissionPaid: false,
+  createdAt: '2024-03-20T10:00:00Z'
+},
+{
+  id: 'book-2',
+  propertyId: 'prop-5',
+  userId: 'user-2',
+  ownerId: 'owner-2',
+  agentId: 'agent-2',
+  status: 'completed',
+  checkIn: '2024-03-01',
+  checkOut: '2024-03-05',
+  totalPrice: 300000,
+  commissionAmount: 9000,
+  commissionPaid: true,
+  createdAt: '2024-02-25T10:00:00Z'
+}];
+
+
+export const mockCommissions: Commission[] = [
+{
+  id: 'comm-1',
+  bookingId: 'book-1',
+  propertyId: 'prop-1',
+  payerId: 'agent-1',
+  amount: 9750,
+  status: 'pending',
+  createdAt: '2024-03-20T10:00:00Z'
+},
+{
+  id: 'comm-2',
+  bookingId: 'book-2',
+  propertyId: 'prop-5',
+  payerId: 'agent-2',
+  amount: 9000,
+  status: 'paid',
+  createdAt: '2024-02-25T10:00:00Z'
 }];

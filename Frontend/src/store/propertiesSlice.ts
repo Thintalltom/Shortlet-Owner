@@ -63,6 +63,18 @@ export const propertiesSlice = createSlice({
       if (idx !== -1) {
         state.list[idx].isReported = true;
       }
+    },
+    updateBookingStatus: (
+    state,
+    action: PayloadAction<{
+      id: string;
+      status: 'available' | 'booked' | 'unavailable';
+    }>) =>
+    {
+      const idx = state.list.findIndex((p) => p.id === action.payload.id);
+      if (idx !== -1) {
+        state.list[idx].bookingStatus = action.payload.status;
+      }
     }
   }
 });
@@ -74,7 +86,8 @@ export const {
   incrementViews,
   featureProperty,
   boostProperty,
-  reportProperty
+  reportProperty,
+  updateBookingStatus
 } = propertiesSlice.actions;
 
 export default propertiesSlice.reducer;

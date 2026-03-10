@@ -1,7 +1,7 @@
-export type UserRole = 'owner' | 'agent' | 'guest';
-export type TrustedStatus = 'none' | 'pending' | 'active';
-export type ManageType = 'owner' | 'agent';
-export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
+export type UserRole = "owner" | "agent" | "user" | "admin";
+export type TrustedStatus = "none" | "pending" | "active";
+export type ManageType = "owner" | "agent";
+export type ApplicationStatus = "pending" | "approved" | "rejected";
 
 export interface User {
   id: string;
@@ -13,6 +13,7 @@ export interface User {
   bio?: string;
   profileImage?: string;
   whatsapp?: string;
+  isBlocked?: boolean;
   createdAt: string;
 }
 
@@ -21,8 +22,8 @@ export interface Property {
   title: string;
   description: string;
   price: number;
-  ownerPrice?: number; // What owner charges agent
-  publicPrice?: number; // What agent charges guests (markup)
+  ownerPrice?: number;
+  publicPrice?: number;
   location: string;
   city: string;
   bedrooms: number;
@@ -31,7 +32,14 @@ export interface Property {
   manageType: ManageType;
   ownerId: string;
   agentId?: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
+
+  // Booking & Availability
+  availableFrom?: string;
+  availableTo?: string;
+  bookingStatus: "available" | "booked" | "unavailable";
+  commissionPaid?: boolean;
+
   // Monetization
   isFeatured: boolean;
   featuredUntil?: string;
@@ -51,14 +59,41 @@ export interface Application {
 }
 
 export interface SavedProperty {
+  id: string;
   userId: string;
   propertyId: string;
+  role: UserRole;
   savedAt: string;
 }
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'bot';
+  role: "user" | "bot";
   text: string;
   timestamp: string;
+}
+
+export interface Booking {
+  id: string;
+  propertyId: string;
+  userId: string;
+  ownerId: string;
+  agentId?: string;
+  status: "confirmed" | "completed" | "cancelled";
+  checkIn: string;
+  checkOut: string;
+  totalPrice: number;
+  commissionAmount: number;
+  commissionPaid: boolean;
+  createdAt: string;
+}
+
+export interface Commission {
+  id: string;
+  bookingId: string;
+  propertyId: string;
+  payerId: string;
+  amount: number;
+  status: "pending" | "paid";
+  createdAt: string;
 }

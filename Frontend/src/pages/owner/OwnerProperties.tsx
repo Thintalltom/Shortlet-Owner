@@ -16,7 +16,8 @@ import {
   addProperty,
   deleteProperty,
   featureProperty,
-  boostProperty } from
+  boostProperty,
+  updateBookingStatus } from
 '../../store/propertiesSlice';
 import { Property } from '../../types';
 const EMPTY_FORM = {
@@ -29,12 +30,15 @@ const EMPTY_FORM = {
   bedrooms: '1',
   amenities: '',
   manageType: 'owner' as 'owner' | 'agent',
-  images: ['', '', '', '', '', ''] as string[]
+  images: ['', '', '', '', '', ''] as string[],
+  availableFrom: '',
+  availableTo: ''
 };
 export function OwnerProperties() {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const properties = useAppSelector((s) => s.properties.list);
+  const commissions = useAppSelector((s) => s.bookings.commissions);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -42,7 +46,12 @@ export function OwnerProperties() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [boostingId, setBoostingId] = useState<string | null>(null);
   const [featuringId, setFeaturingId] = useState<string | null>(null);
+  const [termsAgreed, setTermsAgreed] = useState(false);
   const myProperties = properties.filter((p) => p.ownerId === currentUser?.id);
+  const myCommissions = commissions.filter((c) => c.payerId === currentUser?.id);
+  const hasUnpaidCommissions = myCommissions.some((c) => c.status === 'pending');
+  // Posting limit logic: max 3 properties UNLESS all commissions are paid
+  const limitReached = myProperties.length >= 3 && hasUnpaidCommissions;
   const now = new Date();
   const filledImages = form.images.filter((url) => url.trim() !== '');
   const validImages = filledImages.filter((url) => {
@@ -75,6 +84,7 @@ export function OwnerProperties() {
     if (!form.location.trim()) e.location = 'Location is required';
     if (validImages.length < 3)
     e.images = `Please add at least 3 valid image URLs (${validImages.length}/3 added)`;
+    if (!termsAgreed) e.terms = 'You must agree to the commission terms';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -100,6 +110,10 @@ export function OwnerProperties() {
       manageType: form.manageType,
       ownerId: currentUser!.id,
       status: 'active',
+      availableFrom: form.availableFrom || undefined,
+      availableTo: form.availableTo || undefined,
+      bookingStatus: 'available',
+      commissionPaid: false,
       isFeatured: false,
       viewsCount: 0,
       isReported: false,
@@ -107,6 +121,7 @@ export function OwnerProperties() {
     };
     dispatch(addProperty(newProperty));
     setForm(EMPTY_FORM);
+    setTermsAgreed(false);
     setErrors({});
     setShowForm(false);
     setSaving(false);
@@ -150,14 +165,37 @@ export function OwnerProperties() {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="btn-primary text-sm py-2.5">
+          disabled={limitReached}
+          className="btn-primary text-sm py-2.5 disabled:opacity-50 disabled:cursor-not-allowed">
 
           <PlusIcon size={16} /> Add Property
         </button>
       </div>
 
+      {limitReached && !showForm &&
+      <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircleIcon
+          size={20}
+          className="text-red-600 flex-shrink-0 mt-0.5" />
+
+          <div>
+            <h3 className="font-bold text-red-800">Posting Limit Reached</h3>
+            <p className="text-sm text-red-700 mt-1">
+              You have reached the limit of 3 properties. To post more, you must
+              pay all pending commissions for your booked properties.
+            </p>
+            <Link
+            to="/owner/commissions"
+            className="text-sm font-semibold text-red-800 hover:underline mt-2 inline-block">
+
+              Go to Commissions →
+            </Link>
+          </div>
+        </div>
+      }
+
       {/* Add Property Form */}
-      {showForm &&
+      {showForm && !limitReached &&
       <div className="bg-white rounded-xl border border-[#E5E7EB] p-6 animate-slide-down">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-bold text-[#111827] text-lg">
@@ -260,6 +298,46 @@ export function OwnerProperties() {
               }))
               }
               placeholder="Leave blank to use listing price"
+              className="input-field" />
+
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#111827] mb-1.5">
+                Available From{' '}
+                <span className="text-[#6B7280] font-normal text-xs">
+                  (optional)
+                </span>
+              </label>
+              <input
+              type="date"
+              value={form.availableFrom}
+              onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                availableFrom: e.target.value
+              }))
+              }
+              className="input-field" />
+
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#111827] mb-1.5">
+                Available To{' '}
+                <span className="text-[#6B7280] font-normal text-xs">
+                  (optional)
+                </span>
+              </label>
+              <input
+              type="date"
+              value={form.availableTo}
+              onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                availableTo: e.target.value
+              }))
+              }
               className="input-field" />
 
             </div>
@@ -429,23 +507,6 @@ export function OwnerProperties() {
 
               })}
               </div>
-              {validImages.length > 0 &&
-            <div className="mt-4 p-3 bg-[#F8FAFC] rounded-xl border border-[#E5E7EB]">
-                  <p className="text-xs font-semibold text-[#6B7280] mb-2 flex items-center gap-1.5">
-                    <ImageIcon size={13} /> Gallery Preview
-                  </p>
-                  <div className="flex gap-2 overflow-x-auto pb-1">
-                    {validImages.map((img, i) =>
-                <img
-                  key={i}
-                  src={img}
-                  alt={`Gallery ${i + 1}`}
-                  className={`h-14 w-20 object-cover rounded-lg flex-shrink-0 border-2 ${i === 0 ? 'border-[#1B6B3A]' : 'border-transparent'}`} />
-
-                )}
-                  </div>
-                </div>
-            }
             </div>
 
             {/* Management Type */}
@@ -491,6 +552,26 @@ export function OwnerProperties() {
               </div>
             </div>
 
+            <div className="sm:col-span-2 bg-[#F8FAFC] p-4 rounded-xl border border-[#E5E7EB]">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                type="checkbox"
+                checked={termsAgreed}
+                onChange={(e) => setTermsAgreed(e.target.checked)}
+                className="mt-1 accent-[#1B6B3A]" />
+
+                <span className="text-sm text-[#6B7280]">
+                  I agree to the Terms and Conditions. I understand that I am
+                  required to pay a{' '}
+                  <strong className="text-[#111827]">3% commission</strong> to
+                  ShortletConnect for every successful booking of this property.
+                </span>
+              </label>
+              {errors.terms &&
+            <p className="text-xs text-[#EF4444] mt-2">{errors.terms}</p>
+            }
+            </div>
+
             <div className="sm:col-span-2 flex gap-3 pt-2 border-t border-[#E5E7EB]">
               <button
               type="submit"
@@ -533,7 +614,8 @@ export function OwnerProperties() {
           </p>
           <button
           onClick={() => setShowForm(true)}
-          className="btn-primary text-sm py-2.5">
+          disabled={limitReached}
+          className="btn-primary text-sm py-2.5 disabled:opacity-50">
 
             <PlusIcon size={15} /> Add Property
           </button>
@@ -578,7 +660,24 @@ export function OwnerProperties() {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 mt-3">
+                    <div className="flex flex-wrap items-center gap-3 mt-3">
+                      <select
+                      value={property.bookingStatus}
+                      onChange={(e) =>
+                      dispatch(
+                        updateBookingStatus({
+                          id: property.id,
+                          status: e.target.value as any
+                        })
+                      )
+                      }
+                      className={`text-xs font-semibold px-2 py-1 rounded-lg border ${property.bookingStatus === 'available' ? 'bg-green-50 text-[#10B981] border-green-200' : property.bookingStatus === 'booked' ? 'bg-red-50 text-[#EF4444] border-red-200' : 'bg-gray-100 text-[#6B7280] border-gray-200'}`}>
+
+                        <option value="available">Available</option>
+                        <option value="booked">Booked</option>
+                        <option value="unavailable">Unavailable</option>
+                      </select>
+
                       {isBoostedActive &&
                     <span className="flex items-center gap-1 text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-medium">
                           <ZapIcon size={10} /> Boosted until{' '}
@@ -597,7 +696,7 @@ export function OwnerProperties() {
                     }
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 mt-3">
+                    <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-[#F3F4F6]">
                       <Link
                       to={`/property/${property.id}`}
                       className="text-xs text-[#1B6B3A] hover:underline font-medium">
@@ -614,7 +713,7 @@ export function OwnerProperties() {
                           <ZapIcon size={11} />{' '}
                           {boostingId === property.id ?
                       'Boosting...' :
-                      'Boost (₦2,000 · 7 days)'}
+                      'Boost (₦2,000)'}
                         </button>
                     }
 
@@ -627,12 +726,12 @@ export function OwnerProperties() {
                           <StarIcon size={11} />{' '}
                           {featuringId === property.id ?
                       'Featuring...' :
-                      'Feature (₦5,000 · 30 days)'}
+                      'Feature (₦5,000)'}
                         </button>
                     }
 
                       {deleteConfirm === property.id ?
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 ml-auto">
                           <button
                         onClick={() => {
                           dispatch(deleteProperty(property.id));
@@ -652,7 +751,7 @@ export function OwnerProperties() {
 
                     <button
                       onClick={() => setDeleteConfirm(property.id)}
-                      className="p-1.5 rounded text-[#6B7280] hover:text-[#EF4444] hover:bg-red-50 transition-colors"
+                      className="p-1.5 rounded text-[#6B7280] hover:text-[#EF4444] hover:bg-red-50 transition-colors ml-auto"
                       aria-label="Delete">
 
                           <TrashIcon size={13} />

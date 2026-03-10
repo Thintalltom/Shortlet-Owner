@@ -10,7 +10,11 @@ import {
   XIcon,
   HomeIcon,
   LogOutIcon,
-  ChevronRightIcon } from
+  ChevronRightIcon,
+  HeartIcon,
+  CalendarIcon,
+  UsersIcon,
+  CreditCardIcon } from
 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { logout } from '../store/authSlice';
@@ -40,6 +44,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     icon: FileTextIcon
   },
   {
+    label: 'Commissions',
+    path: '/owner/commissions',
+    icon: CreditCardIcon
+  },
+  {
     label: 'Profile',
     path: '/owner/profile',
     icon: UserIcon
@@ -62,6 +71,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     icon: BuildingIcon
   },
   {
+    label: 'Commissions',
+    path: '/agent/commissions',
+    icon: CreditCardIcon
+  },
+  {
     label: 'Verification',
     path: '/agent/verification',
     icon: ShieldCheckIcon
@@ -72,11 +86,67 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     icon: UserIcon
   }];
 
-  const links = currentUser?.role === 'owner' ? ownerLinks : agentLinks;
+  const userLinks = [
+  {
+    label: 'Dashboard',
+    path: '/user/dashboard',
+    icon: LayoutDashboardIcon
+  },
+  {
+    label: 'My Bookings',
+    path: '/user/bookings',
+    icon: CalendarIcon
+  },
+  {
+    label: 'Saved Properties',
+    path: '/user/saved',
+    icon: HeartIcon
+  },
+  {
+    label: 'Profile',
+    path: '/user/profile',
+    icon: UserIcon
+  }];
+
+  const adminLinks = [
+  {
+    label: 'Dashboard',
+    path: '/admin-x7k9',
+    icon: LayoutDashboardIcon
+  },
+  {
+    label: 'Users',
+    path: '/admin-x7k9/users',
+    icon: UsersIcon
+  },
+  {
+    label: 'Properties',
+    path: '/admin-x7k9/properties',
+    icon: BuildingIcon
+  },
+  {
+    label: 'Commissions',
+    path: '/admin-x7k9/commissions',
+    icon: CreditCardIcon
+  }];
+
+  const getLinks = () => {
+    if (currentUser?.role === 'admin') return adminLinks;
+    if (currentUser?.role === 'user') return userLinks;
+    if (currentUser?.role === 'owner') return ownerLinks;
+    return agentLinks;
+  };
+  const links = getLinks();
   const currentPath = location.pathname;
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
+  };
+  const getRoleBadgeColor = () => {
+    if (currentUser?.role === 'owner') return 'bg-[#E8F5EE] text-[#1B6B3A]';
+    if (currentUser?.role === 'agent') return 'bg-amber-50 text-amber-700';
+    if (currentUser?.role === 'admin') return 'bg-purple-50 text-purple-700';
+    return 'bg-blue-50 text-blue-700';
   };
   const SidebarContent = () =>
   <div className="flex flex-col h-full">
@@ -106,7 +176,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {currentUser.name}
               </div>
               <span
-            className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${currentUser.role === 'owner' ? 'bg-[#E8F5EE] text-[#1B6B3A]' : 'bg-blue-50 text-blue-700'}`}>
+            className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${getRoleBadgeColor()}`}>
 
                 {currentUser.role}
               </span>

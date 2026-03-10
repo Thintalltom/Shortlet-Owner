@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 128 859">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#Motivo_nuevo_3);
+        opacity: .59;
+      }
+
+      .cls-2 {
+        stroke: #f2f2f2;
+        stroke-miterlimit: 10;
+        stroke-width: .75px;
+      }
+
+      .cls-2, .cls-3 {
+        fill: none;
+      }
+
+      .cls-4 {
+        fill: url(#Degradado_sin_nombre_334);
+        filter: url(#drop-shadow-1);
+      }
+    </style>
+    <linearGradient id="Degradado_sin_nombre_334" data-name="Degradado sin nombre 334" x1="66.72" y1="409.8" x2="79.19" y2="380.71" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#bc0000"/>
+      <stop offset=".02" stop-color="#c40000"/>
+      <stop offset=".07" stop-color="#d00"/>
+      <stop offset=".11" stop-color="#ec0000"/>
+      <stop offset=".15" stop-color="#f20000"/>
+      <stop offset=".16" stop-color="#f41414"/>
+      <stop offset=".17" stop-color="#f72f2f"/>
+      <stop offset=".18" stop-color="#fa4545"/>
+      <stop offset=".2" stop-color="#fc5757"/>
+      <stop offset=".22" stop-color="#fd6363"/>
+      <stop offset=".24" stop-color="#fe6a6a"/>
+      <stop offset=".31" stop-color="#ff6c6c"/>
+      <stop offset=".5" stop-color="#f33"/>
+      <stop offset=".74" stop-color="#f20000"/>
+      <stop offset=".75" stop-color="#ef0000"/>
+      <stop offset=".92" stop-color="#ca0000"/>
+      <stop offset="1" stop-color="#bc0000"/>
+    </linearGradient>
+    <filter id="drop-shadow-1" filterUnits="userSpaceOnUse">
+      <feOffset dx="2.83" dy="7"/>
+      <feGaussianBlur result="blur" stdDeviation="2.83"/>
+      <feFlood flood-color="#000" flood-opacity=".25"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <pattern id="Motivo_nuevo_3" data-name="Motivo nuevo 3" x="0" y="0" width="140.8" height="147.62" patternTransform="translate(-79.03 1.5)" patternUnits="userSpaceOnUse" viewBox="0 0 140.8 147.62">
+      <g>
+        <rect class="cls-3" width="140.8" height="147.62"/>
+        <polyline class="cls-2" points="211.19 167.96 211.19 128.74 176 93.54 140.81 128.74 140.81 167.96"/>
+        <g>
+          <polyline class="cls-2" points="140.79 167.96 140.79 128.74 105.6 93.54 70.41 128.74 70.41 167.96"/>
+          <polyline class="cls-2" points="130.52 177.86 130.52 132.89 105.6 107.98 80.68 132.89 80.68 177.86"/>
+          <polyline class="cls-2" points="120.42 187.93 120.42 139.14 105.6 124.32 90.78 139.14 90.78 187.93"/>
+          <line class="cls-2" x1="105.6" y1="124.63" x2="105.6" y2="202.23"/>
+        </g>
+        <g>
+          <polyline class="cls-2" points="70.39 167.96 70.39 128.74 35.2 93.54 0 128.74 0 167.96"/>
+          <polyline class="cls-2" points="60.12 177.86 60.12 132.89 35.2 107.98 10.28 132.89 10.28 177.86"/>
+          <polyline class="cls-2" points="50.02 187.93 50.02 139.14 35.2 124.32 20.38 139.14 20.38 187.93"/>
+          <line class="cls-2" x1="35.2" y1="124.63" x2="35.2" y2="202.23"/>
+        </g>
+        <polyline class="cls-2" points="0 167.96 0 128.74 -35.2 93.54 -70.39 128.74 -70.39 167.96"/>
+        <g>
+          <polyline class="cls-2" points="175.99 94.15 175.99 54.92 140.8 19.73 105.61 54.92 105.61 94.15"/>
+          <polyline class="cls-2" points="165.72 104.05 165.72 59.08 140.8 34.16 115.88 59.08 115.88 104.05"/>
+          <polyline class="cls-2" points="155.62 114.12 155.62 65.33 140.8 50.51 125.98 65.33 125.98 114.12"/>
+          <line class="cls-2" x1="140.8" y1="50.82" x2="140.8" y2="128.42"/>
+        </g>
+        <g>
+          <polyline class="cls-2" points="105.59 94.15 105.59 54.92 70.4 19.73 35.21 54.92 35.21 94.15"/>
+          <polyline class="cls-2" points="95.32 104.05 95.32 59.08 70.4 34.16 45.48 59.08 45.48 104.05"/>
+          <polyline class="cls-2" points="85.22 114.12 85.22 65.33 70.4 50.51 55.58 65.33 55.58 114.12"/>
+          <line class="cls-2" x1="70.4" y1="50.82" x2="70.4" y2="128.42"/>
+        </g>
+        <g>
+          <polyline class="cls-2" points="35.19 94.15 35.19 54.92 0 19.73 -35.19 54.92 -35.19 94.15"/>
+          <polyline class="cls-2" points="24.92 104.05 24.92 59.08 0 34.16 -24.92 59.08 -24.92 104.05"/>
+          <polyline class="cls-2" points="14.82 114.12 14.82 65.33 0 50.51 -14.82 65.33 -14.82 114.12"/>
+          <line class="cls-2" x1="0" y1="50.82" x2="0" y2="128.42"/>
+        </g>
+        <polyline class="cls-2" points="211.19 20.34 211.19 -18.89 176 -54.08 140.81 -18.89 140.81 20.34"/>
+        <g>
+          <polyline class="cls-2" points="140.79 20.34 140.79 -18.89 105.6 -54.08 70.41 -18.89 70.41 20.34"/>
+          <polyline class="cls-2" points="130.52 30.24 130.52 -14.73 105.6 -39.65 80.68 -14.73 80.68 30.24"/>
+          <polyline class="cls-2" points="120.42 40.31 120.42 -8.48 105.6 -23.3 90.78 -8.48 90.78 40.31"/>
+          <line class="cls-2" x1="105.6" y1="-22.99" x2="105.6" y2="54.61"/>
+        </g>
+        <g>
+          <polyline class="cls-2" points="70.39 20.34 70.39 -18.89 35.2 -54.08 0 -18.89 0 20.34"/>
+          <polyline class="cls-2" points="60.12 30.24 60.12 -14.73 35.2 -39.65 10.28 -14.73 10.28 30.24"/>
+          <polyline class="cls-2" points="50.02 40.31 50.02 -8.48 35.2 -23.3 20.38 -8.48 20.38 40.31"/>
+          <line class="cls-2" x1="35.2" y1="-22.99" x2="35.2" y2="54.61"/>
+        </g>
+        <polyline class="cls-2" points="0 20.34 0 -18.89 -35.2 -54.08 -70.39 -18.89 -70.39 20.34"/>
+      </g>
+    </pattern>
+  </defs>
+  <g id="Capa_1" data-name="Capa 1">
+    <g>
+      <rect class="cls-4" x="6.56" y="2.22" width="109.48" height="840.45"/>
+      <rect class="cls-1" x="7.63" y="2.22" width="109.48" height="840.45"/>
+    </g>
+  </g>
+</svg>

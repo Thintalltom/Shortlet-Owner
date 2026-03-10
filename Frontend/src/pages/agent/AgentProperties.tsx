@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BuildingIcon, MapPinIcon, ZapIcon } from 'lucide-react';
+import {
+  BuildingIcon,
+  MapPinIcon,
+  ZapIcon,
+  AlertCircleIcon } from
+'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store';
-import { boostProperty } from '../../store/propertiesSlice';
+import { boostProperty, updateBookingStatus } from '../../store/propertiesSlice';
 export function AgentProperties() {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const properties = useAppSelector((s) => s.properties.list);
+  const commissions = useAppSelector((s) => s.bookings.commissions);
   const [boostingId, setBoostingId] = useState<string | null>(null);
   const myProperties = properties.filter(
     (p) => p.agentId === currentUser?.id && p.status === 'active'
   );
+  const myCommissions = commissions.filter((c) => c.payerId === currentUser?.id);
+  const hasUnpaidCommissions = myCommissions.some((c) => c.status === 'pending');
+  const limitReached = myProperties.length >= 3 && hasUnpaidCommissions;
   const now = new Date();
   const handleBoost = async (propertyId: string) => {
     setBoostingId(propertyId);
@@ -38,6 +47,28 @@ export function AgentProperties() {
           assigned to you
         </p>
       </div>
+
+      {limitReached &&
+      <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircleIcon
+          size={20}
+          className="text-red-600 flex-shrink-0 mt-0.5" />
+
+          <div>
+            <h3 className="font-bold text-red-800">Management Limit Reached</h3>
+            <p className="text-sm text-red-700 mt-1">
+              You have reached the limit of 3 properties. To manage more, you
+              must pay all pending commissions for your booked properties.
+            </p>
+            <Link
+            to="/agent/commissions"
+            className="text-sm font-semibold text-red-800 hover:underline mt-2 inline-block">
+
+              Go to Commissions →
+            </Link>
+          </div>
+        </div>
+      }
 
       {myProperties.length === 0 ?
       <div className="bg-white rounded-xl border border-[#E5E7EB] p-12 text-center">
@@ -90,6 +121,26 @@ export function AgentProperties() {
                     <MapPinIcon size={12} className="text-[#1B6B3A]" />{' '}
                     {property.location}
                   </div>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <select
+                    value={property.bookingStatus}
+                    onChange={(e) =>
+                    dispatch(
+                      updateBookingStatus({
+                        id: property.id,
+                        status: e.target.value as any
+                      })
+                    )
+                    }
+                    className={`text-xs font-semibold px-2 py-1 rounded-lg border w-full ${property.bookingStatus === 'available' ? 'bg-green-50 text-[#10B981] border-green-200' : property.bookingStatus === 'booked' ? 'bg-red-50 text-[#EF4444] border-red-200' : 'bg-gray-100 text-[#6B7280] border-gray-200'}`}>
+
+                      <option value="available">Available</option>
+                      <option value="booked">Booked</option>
+                      <option value="unavailable">Unavailable</option>
+                    </select>
+                  </div>
+
                   <div className="flex gap-2">
                     <Link
                     to={`/property/${property.id}`}

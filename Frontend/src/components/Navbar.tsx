@@ -36,6 +36,8 @@ export function Navbar() {
 
   const getDashboardPath = () => {
     if (!currentUser) return '/login';
+    if (currentUser.role === 'admin') return '/admin-x7k9';
+    if (currentUser.role === 'user') return '/user/dashboard';
     return currentUser.role === 'owner' ?
     '/owner/dashboard' :
     '/agent/dashboard';
@@ -45,10 +47,12 @@ export function Navbar() {
     navigate('/');
     setMobileOpen(false);
   };
-  const roleBadgeColor =
-  currentUser?.role === 'owner' ?
-  'bg-[#E8F5EE] text-[#1B6B3A]' :
-  'bg-blue-50 text-blue-700';
+  const getRoleBadgeColor = () => {
+    if (currentUser?.role === 'owner') return 'bg-[#E8F5EE] text-[#1B6B3A]';
+    if (currentUser?.role === 'agent') return 'bg-amber-50 text-amber-700';
+    if (currentUser?.role === 'admin') return 'bg-purple-50 text-purple-700';
+    return 'bg-blue-50 text-blue-700';
+  };
   const isActive = (path: string) => location.pathname === path;
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-[#E5E7EB] shadow-sm">
@@ -82,9 +86,9 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {currentUser ?
             <>
-                {savedCount > 0 &&
+                {savedCount > 0 && currentUser.role === 'user' &&
               <Link
-                to="/listings"
+                to="/user/saved"
                 className="relative p-2 rounded-lg text-[#6B7280] hover:bg-[#F8FAFC] transition-colors"
                 title="Saved properties">
 
@@ -111,7 +115,7 @@ export function Navbar() {
                       {currentUser.name.split(' ')[0]}
                     </div>
                     <span
-                    className={`text-xs px-1.5 py-0.5 rounded-full font-medium capitalize ${roleBadgeColor}`}>
+                    className={`text-xs px-1.5 py-0.5 rounded-full font-medium capitalize ${getRoleBadgeColor()}`}>
 
                       {currentUser.role}
                     </span>
@@ -187,7 +191,7 @@ export function Navbar() {
                         {currentUser.name}
                       </div>
                       <span
-                    className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${roleBadgeColor}`}>
+                    className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${getRoleBadgeColor()}`}>
 
                         {currentUser.role}
                       </span>

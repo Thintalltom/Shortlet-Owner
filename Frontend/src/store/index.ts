@@ -4,13 +4,15 @@ import authReducer from './authSlice';
 import propertiesReducer from './propertiesSlice';
 import applicationsReducer from './applicationsSlice';
 import savedPropertiesReducer from './savedPropertiesSlice';
+import bookingsReducer from './bookingsSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     properties: propertiesReducer,
     applications: applicationsReducer,
-    savedProperties: savedPropertiesReducer
+    savedProperties: savedPropertiesReducer,
+    bookings: bookingsReducer
   }
 });
 

@@ -5,7 +5,9 @@ import {
   UsersIcon,
   FileTextIcon,
   PlusIcon,
-  ArrowRightIcon } from
+  ArrowRightIcon,
+  BellIcon,
+  CreditCardIcon } from
 'lucide-react';
 import { useAppSelector } from '../../store';
 import { mockUsers } from '../../data/mockData';
@@ -13,6 +15,8 @@ export function OwnerDashboard() {
   const currentUser = useAppSelector((s) => s.auth.currentUser);
   const properties = useAppSelector((s) => s.properties.list);
   const applications = useAppSelector((s) => s.applications.list);
+  const bookings = useAppSelector((s) => s.bookings.bookings);
+  const commissions = useAppSelector((s) => s.bookings.commissions);
   const myProperties = properties.filter((p) => p.ownerId === currentUser?.id);
   const myPropertyIds = myProperties.map((p) => p.id);
   const myApplications = applications.filter((a) =>
@@ -23,6 +27,19 @@ export function OwnerDashboard() {
   );
   const assignedAgents = myProperties.filter((p) => p.agentId).length;
   const recentProperties = myProperties.slice(0, 3);
+  const recentBookings = bookings.
+  filter((b) => myPropertyIds.includes(b.propertyId)).
+  sort(
+    (a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  ).
+  slice(0, 3);
+  const myCommissions = commissions.filter((c) => c.payerId === currentUser?.id);
+  const pendingCommissions = myCommissions.filter((c) => c.status === 'pending');
+  const totalPendingCommissions = pendingCommissions.reduce(
+    (sum, c) => sum + c.amount,
+    0
+  );
   const formatPrice = (price: number) =>
   new Intl.NumberFormat('en-NG', {
     style: 'currency',
@@ -47,6 +64,29 @@ export function OwnerDashboard() {
           <PlusIcon size={16} /> Add Property
         </Link>
       </div>
+
+      {totalPendingCommissions > 0 &&
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CreditCardIcon size={20} className="text-amber-600" />
+            <div>
+              <p className="font-semibold text-amber-800 text-sm">
+                Pending Commissions: ₦{totalPendingCommissions.toLocaleString()}
+              </p>
+              <p className="text-xs text-amber-700">
+                Please pay your pending commissions to avoid account
+                restrictions.
+              </p>
+            </div>
+          </div>
+          <Link
+          to="/owner/commissions"
+          className="btn-accent text-xs py-2 px-4 whitespace-nowrap">
+
+            Pay Now
+          </Link>
+        </div>
+      }
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
@@ -101,68 +141,113 @@ export function OwnerDashboard() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
-          <h2 className="font-bold text-[#111827]">Recent Properties</h2>
-          <Link
-            to="/owner/properties"
-            className="text-sm text-[#1B6B3A] font-semibold hover:underline flex items-center gap-1">
-
-            View all <ArrowRightIcon size={14} />
-          </Link>
-        </div>
-        {recentProperties.length === 0 ?
-        <div className="p-8 text-center">
-            <BuildingIcon size={32} className="text-[#E5E7EB] mx-auto mb-3" />
-            <p className="text-[#6B7280] text-sm">No properties yet</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
+            <h2 className="font-bold text-[#111827]">Recent Properties</h2>
             <Link
-            to="/owner/properties"
-            className="btn-primary text-sm py-2 mt-4 inline-flex">
+              to="/owner/properties"
+              className="text-sm text-[#1B6B3A] font-semibold hover:underline flex items-center gap-1">
 
-              <PlusIcon size={15} /> Add Your First Property
+              View all <ArrowRightIcon size={14} />
             </Link>
-          </div> :
-
-        <div className="divide-y divide-[#E5E7EB]">
-            {recentProperties.map((property) => {
-            const agent = property.agentId ?
-            mockUsers.find((u) => u.id === property.agentId) :
-            undefined;
-            return (
-              <div
-                key={property.id}
-                className="flex items-center gap-4 px-5 py-4">
-
-                  <img
-                  src={property.images[0]}
-                  alt={property.title}
-                  className="w-14 h-10 rounded-lg object-cover flex-shrink-0" />
-
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-[#111827] text-sm truncate">
-                      {property.title}
-                    </div>
-                    <div className="text-xs text-[#6B7280] mt-0.5">
-                      {property.location}
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-sm font-semibold text-[#1B6B3A]">
-                      {formatPrice(property.price)}
-                    </div>
-                    <div className="text-xs text-[#6B7280] mt-0.5">
-                      {property.manageType === 'owner' ?
-                    'Self-managed' :
-                    agent ?
-                    `Agent: ${agent.name.split(' ')[0]}` :
-                    'No agent'}
-                    </div>
-                  </div>
-                </div>);
-
-          })}
           </div>
-        }
+          {recentProperties.length === 0 ?
+          <div className="p-8 text-center">
+              <BuildingIcon size={32} className="text-[#E5E7EB] mx-auto mb-3" />
+              <p className="text-[#6B7280] text-sm">No properties yet</p>
+              <Link
+              to="/owner/properties"
+              className="btn-primary text-sm py-2 mt-4 inline-flex">
+
+                <PlusIcon size={15} /> Add Your First Property
+              </Link>
+            </div> :
+
+          <div className="divide-y divide-[#E5E7EB]">
+              {recentProperties.map((property) => {
+              const agent = property.agentId ?
+              mockUsers.find((u) => u.id === property.agentId) :
+              undefined;
+              return (
+                <div
+                  key={property.id}
+                  className="flex items-center gap-4 px-5 py-4">
+
+                    <img
+                    src={property.images[0]}
+                    alt={property.title}
+                    className="w-14 h-10 rounded-lg object-cover flex-shrink-0" />
+
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-[#111827] text-sm truncate">
+                        {property.title}
+                      </div>
+                      <div className="text-xs text-[#6B7280] mt-0.5">
+                        {property.location}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-sm font-semibold text-[#1B6B3A]">
+                        {formatPrice(property.price)}
+                      </div>
+                      <div className="text-xs text-[#6B7280] mt-0.5">
+                        {property.manageType === 'owner' ?
+                      'Self-managed' :
+                      agent ?
+                      `Agent: ${agent.name.split(' ')[0]}` :
+                      'No agent'}
+                      </div>
+                    </div>
+                  </div>);
+
+            })}
+            </div>
+          }
+        </div>
+
+        <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
+            <h2 className="font-bold text-[#111827]">Recent Bookings</h2>
+          </div>
+          {recentBookings.length === 0 ?
+          <div className="p-8 text-center">
+              <BellIcon size={32} className="text-[#E5E7EB] mx-auto mb-3" />
+              <p className="text-[#6B7280] text-sm">No bookings yet</p>
+            </div> :
+
+          <div className="divide-y divide-[#E5E7EB]">
+              {recentBookings.map((booking) => {
+              const property = properties.find(
+                (p) => p.id === booking.propertyId
+              );
+              const user = mockUsers.find((u) => u.id === booking.userId);
+              return (
+                <div key={booking.id} className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0 mt-1">
+                        <BellIcon size={14} className="text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-[#111827]">
+                          <span className="font-semibold">{user?.name}</span>{' '}
+                          confirmed a booking for{' '}
+                          <span className="font-semibold">
+                            {property?.title}
+                          </span>
+                        </p>
+                        <p className="text-xs text-[#6B7280] mt-1">
+                          {new Date(booking.createdAt).toLocaleDateString()} • ₦
+                          {booking.totalPrice.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>);
+
+            })}
+            </div>
+          }
+        </div>
       </div>
 
       <Link

@@ -12,7 +12,7 @@ import {
 'lucide-react';
 import { Property, User } from '../types';
 import { useAppDispatch, useAppSelector } from '../store';
-import { saveProperty, unsaveProperty } from '../store/savedPropertiesSlice';
+// import { saveProperty, unsaveProperty } from '../store/savedPropertiesSlice';
 interface PropertyCardProps {
   property: Property;
   agent?: User;
@@ -37,26 +37,26 @@ export function PropertyCard({
   const isSaved = savedProperties.some(
     (s) => s.userId === currentUser?.id && s.propertyId === property.id
   );
-  const handleSave = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!currentUser) return;
-    if (isSaved) {
-      dispatch(
-        unsaveProperty({
-          userId: currentUser.id,
-          propertyId: property.id
-        })
-      );
-    } else {
-      dispatch(
-        saveProperty({
-          userId: currentUser.id,
-          propertyId: property.id
-        })
-      );
-    }
-  };
+  // const handleSave = (e: React.MouseEvent) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   if (!currentUser) return;
+  //   if (isSaved) {
+  //     dispatch(
+  //       unsaveProperty({
+  //         userId: currentUser.id,
+  //         propertyId: property.id
+  //       })
+  //     );
+  //   } else {
+  //     dispatch(
+  //       saveProperty({
+  //         userId: currentUser.id,
+  //         propertyId: property.id
+  //       })
+  //     );
+  //   }
+  // };
   const displayPrice = property.publicPrice || property.price;
   const formatPrice = (price: number) =>
   new Intl.NumberFormat('en-NG', {
@@ -93,7 +93,7 @@ export function PropertyCard({
         {/* Save button */}
         {showSave && currentUser &&
         <button
-          onClick={handleSave}
+          // onClick={handleSave}
           className="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors"
           aria-label={isSaved ? 'Remove from saved' : 'Save property'}>
 

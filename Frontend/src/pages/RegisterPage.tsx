@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HomeIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import {
+  HomeIcon,
+  EyeIcon,
+  EyeOffIcon,
+  BuildingIcon,
+  StarIcon,
+  UserIcon } from
+'lucide-react';
 import { useAppDispatch } from '../store';
 import { login } from '../store/authSlice';
 import { mockUsers } from '../data/mockData';
@@ -12,7 +19,7 @@ export function RegisterPage() {
     email: '',
     phone: '',
     password: '',
-    role: 'owner' as 'owner' | 'agent'
+    role: 'user' as 'owner' | 'agent' | 'user'
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,7 +36,9 @@ export function RegisterPage() {
     const demoUser = mockUsers.find((u) => u.role === form.role);
     if (demoUser) {
       dispatch(login(demoUser.id));
-      navigate(form.role === 'owner' ? '/owner/dashboard' : '/agent/dashboard');
+      if (form.role === 'owner') navigate('/owner/dashboard');else
+      if (form.role === 'agent') navigate('/agent/dashboard');else
+      navigate('/user/dashboard');
     }
     setLoading(false);
   };
@@ -49,7 +58,7 @@ export function RegisterPage() {
             Create your account
           </h1>
           <p className="text-[#6B7280] text-sm mt-1">
-            Join thousands of owners and agents
+            Join thousands of owners, agents, and guests
           </p>
         </div>
 
@@ -65,7 +74,38 @@ export function RegisterPage() {
               <label className="block text-sm font-semibold text-[#111827] mb-2">
                 I am a...
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                  setForm((f) => ({
+                    ...f,
+                    role: 'user'
+                  }))
+                  }
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 text-sm font-medium transition-all text-left ${form.role === 'user' ? 'border-[#1B6B3A] bg-[#E8F5EE]' : 'border-[#E5E7EB] text-[#6B7280] hover:border-[#1B6B3A]/40'}`}>
+
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center ${form.role === 'user' ? 'bg-[#1B6B3A]' : 'bg-[#F8FAFC]'}`}>
+
+                    <UserIcon
+                      size={18}
+                      className={
+                      form.role === 'user' ? 'text-white' : 'text-[#6B7280]'
+                      } />
+
+                  </div>
+                  <div>
+                    <div
+                      className={`font-semibold ${form.role === 'user' ? 'text-[#1B6B3A]' : 'text-[#111827]'}`}>
+
+                      Guest / Traveler
+                    </div>
+                    <div className="text-xs font-normal">
+                      Find and book shortlet apartments
+                    </div>
+                  </div>
+                </button>
                 <button
                   type="button"
                   onClick={() =>
@@ -74,9 +114,28 @@ export function RegisterPage() {
                     role: 'owner'
                   }))
                   }
-                  className={`p-3 rounded-xl border-2 text-sm font-medium transition-all ${form.role === 'owner' ? 'border-[#1B6B3A] bg-[#E8F5EE] text-[#1B6B3A]' : 'border-[#E5E7EB] text-[#6B7280]'}`}>
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 text-sm font-medium transition-all text-left ${form.role === 'owner' ? 'border-[#1B6B3A] bg-[#E8F5EE]' : 'border-[#E5E7EB] text-[#6B7280] hover:border-[#1B6B3A]/40'}`}>
 
-                  🏠 Property Owner
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center ${form.role === 'owner' ? 'bg-[#1B6B3A]' : 'bg-[#F8FAFC]'}`}>
+
+                    <BuildingIcon
+                      size={18}
+                      className={
+                      form.role === 'owner' ? 'text-white' : 'text-[#6B7280]'
+                      } />
+
+                  </div>
+                  <div>
+                    <div
+                      className={`font-semibold ${form.role === 'owner' ? 'text-[#1B6B3A]' : 'text-[#111827]'}`}>
+
+                      Property Owner
+                    </div>
+                    <div className="text-xs font-normal">
+                      List and manage your properties
+                    </div>
+                  </div>
                 </button>
                 <button
                   type="button"
@@ -86,9 +145,28 @@ export function RegisterPage() {
                     role: 'agent'
                   }))
                   }
-                  className={`p-3 rounded-xl border-2 text-sm font-medium transition-all ${form.role === 'agent' ? 'border-[#1B6B3A] bg-[#E8F5EE] text-[#1B6B3A]' : 'border-[#E5E7EB] text-[#6B7280]'}`}>
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 text-sm font-medium transition-all text-left ${form.role === 'agent' ? 'border-[#F59E0B] bg-amber-50' : 'border-[#E5E7EB] text-[#6B7280] hover:border-[#F59E0B]/40'}`}>
 
-                  ⭐ Agent
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center ${form.role === 'agent' ? 'bg-[#F59E0B]' : 'bg-[#F8FAFC]'}`}>
+
+                    <StarIcon
+                      size={18}
+                      className={
+                      form.role === 'agent' ? 'text-white' : 'text-[#6B7280]'
+                      } />
+
+                  </div>
+                  <div>
+                    <div
+                      className={`font-semibold ${form.role === 'agent' ? 'text-amber-700' : 'text-[#111827]'}`}>
+
+                      Agent
+                    </div>
+                    <div className="text-xs font-normal">
+                      Manage properties for owners
+                    </div>
+                  </div>
                 </button>
               </div>
             </div>

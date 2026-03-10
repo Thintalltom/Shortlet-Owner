@@ -6,7 +6,8 @@ import {
   EyeOffIcon,
   LogInIcon,
   BuildingIcon,
-  StarIcon } from
+  StarIcon,
+  UserIcon } from
 'lucide-react';
 import { useAppDispatch } from '../store';
 import { login } from '../store/authSlice';
@@ -14,7 +15,7 @@ import { mockUsers } from '../data/mockData';
 export function LoginPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [role, setRole] = useState<'owner' | 'agent' | null>(null);
+  const [role, setRole] = useState<'owner' | 'agent' | 'user' | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,6 +24,12 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    // Admin bypass
+    if (email === 'admin@shortletconnect.ng') {
+      dispatch(login('admin-1'));
+      navigate('/admin-x7k9');
+      return;
+    }
     if (!role) {
       setError('Please select your account type.');
       return;
@@ -35,13 +42,21 @@ export function LoginPage() {
     await new Promise((r) => setTimeout(r, 800));
     const user = mockUsers.find((u) => u.email === email && u.role === role);
     if (user) {
-      dispatch(login(user.id));
-      navigate(user.role === 'owner' ? '/owner/dashboard' : '/agent/dashboard');
+      if (user.isBlocked) {
+        setError('Your account has been blocked by an administrator.');
+      } else {
+        dispatch(login(user.id));
+        if (user.role === 'owner') navigate('/owner/dashboard');else
+        if (user.role === 'agent') navigate('/agent/dashboard');else
+        navigate('/user/dashboard');
+      }
     } else {
       setError(
         role === 'owner' ?
-        'No owner account found with that email. Try: chidi@example.com or amaka@example.com' :
-        'No agent account found with that email. Try: emeka@example.com, fatima@example.com, tunde@example.com, or blessing@example.com'
+        'No owner account found. Try: chidi@example.com' :
+        role === 'agent' ?
+        'No agent account found. Try: emeka@example.com' :
+        'No user account found. Try: ngozi@example.com'
       );
     }
     setLoading(false);
@@ -75,20 +90,47 @@ export function LoginPage() {
               <label className="block text-sm font-semibold text-[#111827] mb-2">
                 I am a...
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRole('user');
+                    setError('');
+                  }}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all text-center ${role === 'user' ? 'border-[#1B6B3A] bg-[#E8F5EE]' : 'border-[#E5E7EB] hover:border-[#1B6B3A]/40'}`}>
+
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${role === 'user' ? 'bg-[#1B6B3A]' : 'bg-[#F8FAFC]'}`}>
+
+                    <UserIcon
+                      size={16}
+                      className={
+                      role === 'user' ? 'text-white' : 'text-[#6B7280]'
+                      } />
+
+                  </div>
+                  <div>
+                    <div
+                      className={`font-semibold text-xs ${role === 'user' ? 'text-[#1B6B3A]' : 'text-[#111827]'}`}>
+
+                      Guest
+                    </div>
+                  </div>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
                     setRole('owner');
                     setError('');
                   }}
-                  className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${role === 'owner' ? 'border-[#1B6B3A] bg-[#E8F5EE]' : 'border-[#E5E7EB] hover:border-[#1B6B3A]/40'}`}>
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all text-center ${role === 'owner' ? 'border-[#1B6B3A] bg-[#E8F5EE]' : 'border-[#E5E7EB] hover:border-[#1B6B3A]/40'}`}>
 
                   <div
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center ${role === 'owner' ? 'bg-[#1B6B3A]' : 'bg-[#F8FAFC]'}`}>
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${role === 'owner' ? 'bg-[#1B6B3A]' : 'bg-[#F8FAFC]'}`}>
 
                     <BuildingIcon
-                      size={18}
+                      size={16}
                       className={
                       role === 'owner' ? 'text-white' : 'text-[#6B7280]'
                       } />
@@ -96,12 +138,9 @@ export function LoginPage() {
                   </div>
                   <div>
                     <div
-                      className={`font-semibold text-sm ${role === 'owner' ? 'text-[#1B6B3A]' : 'text-[#111827]'}`}>
+                      className={`font-semibold text-xs ${role === 'owner' ? 'text-[#1B6B3A]' : 'text-[#111827]'}`}>
 
                       Owner
-                    </div>
-                    <div className="text-[10px] text-[#6B7280]">
-                      Property owner
                     </div>
                   </div>
                 </button>
@@ -112,13 +151,13 @@ export function LoginPage() {
                     setRole('agent');
                     setError('');
                   }}
-                  className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${role === 'agent' ? 'border-[#F59E0B] bg-amber-50' : 'border-[#E5E7EB] hover:border-[#F59E0B]/40'}`}>
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all text-center ${role === 'agent' ? 'border-[#F59E0B] bg-amber-50' : 'border-[#E5E7EB] hover:border-[#F59E0B]/40'}`}>
 
                   <div
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center ${role === 'agent' ? 'bg-[#F59E0B]' : 'bg-[#F8FAFC]'}`}>
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${role === 'agent' ? 'bg-[#F59E0B]' : 'bg-[#F8FAFC]'}`}>
 
                     <StarIcon
-                      size={18}
+                      size={16}
                       className={
                       role === 'agent' ? 'text-white' : 'text-[#6B7280]'
                       } />
@@ -126,12 +165,9 @@ export function LoginPage() {
                   </div>
                   <div>
                     <div
-                      className={`font-semibold text-sm ${role === 'agent' ? 'text-amber-700' : 'text-[#111827]'}`}>
+                      className={`font-semibold text-xs ${role === 'agent' ? 'text-amber-700' : 'text-[#111827]'}`}>
 
                       Agent
-                    </div>
-                    <div className="text-[10px] text-[#6B7280]">
-                      Property agent
                     </div>
                   </div>
                 </button>
@@ -189,7 +225,9 @@ export function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || !role}
+              disabled={
+              loading || !role && email !== 'admin@shortletconnect.ng'
+              }
               className="w-full btn-primary justify-center py-3 disabled:opacity-60 disabled:cursor-not-allowed">
 
               {loading ?

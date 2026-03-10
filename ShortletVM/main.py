@@ -1,55 +1,28 @@
-from fastapi import FastAPI, Depends
-from pydantic import BaseModel
-from typing import List
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 import models
-from database import engine, get_db
-from routers import auth
+from database import engine, get_db, init_db
+from routers import auth, verification, details, properties, saved_properties
+from pathlib import Path
 
-models.Base.metadata.create_all(bind=engine)
+# Initialize database and run migrations
+init_db()
 
 app = FastAPI()
 
+# Mount static files for uploads
+uploads_path = Path("uploads")
+if uploads_path.exists():
+    app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 app.include_router(auth.router)
-
-
-class PropertyModel(BaseModel):
-    PropertyName: str
-    Description: str
-    price: float
-    owner_price: float
-    bedrooms: str
-    city: str
-    fullAddress: str
-    Ammenities: List[str]
-    propertyImage: List[str]
-    mgtType: str
+app.include_router(verification.router)
+app.include_router(details.router)
+app.include_router(properties.router)
+app.include_router(saved_properties.router)
 
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
-
-@app.post("/createProperty/")
-def create_property(property: PropertyModel, db: Session = Depends(get_db)):
-    new_property = models.Property(PropertyName=property.PropertyName,
-                                   Description=property.Description,
-                                   price=property.price,
-                                   owner_price=property.owner_price,
-                                   bedrooms=property.bedrooms,
-                                   city=property.city,
-                                   fullAddress=property.fullAddress,
-                                   Ammenities=str(property.Ammenities),
-                                   propertyImage=str(property.propertyImage),
-                                   mgtType=property.mgtType)
-    db.add(new_property)
-    db.commit()
-    db.refresh(new_property)
-    return new_property
-
-@app.get("/properties/")
-def get_properties(db: Session = Depends(get_db)):
-    properties = db.query(models.Property).all()
-    return properties
-
