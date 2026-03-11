@@ -36,6 +36,14 @@ def init_db():
     with engine.connect() as conn:
         try:
             conn.execute(
+                text("ALTER TABLE properties ADD COLUMN owner_id INTEGER"))
+            conn.commit()
+        except Exception as e:
+            # Column already exists or other error
+            pass
+
+        try:
+            conn.execute(
                 text("ALTER TABLE properties ADD COLUMN status VARCHAR DEFAULT 'available'"))
             conn.commit()
         except Exception as e:

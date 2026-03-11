@@ -7,6 +7,8 @@ class Property(Base):
     __tablename__ = "properties"
 
     id = Column(Integer, primary_key=True, index=True)
+    # User who created/owns the property
+    owner_id = Column(Integer, index=True)
     PropertyName = Column(String)
     Description = Column(String)
     price = Column(Float)

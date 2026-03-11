@@ -9,7 +9,7 @@ from core.dependencies import get_current_user, require_role
 
 router = APIRouter(
     prefix="",
-    tags=["Properties and Bookings"]
+    tags=["Properties, Bookings and Notifications"]
 )
 
 
@@ -73,7 +73,8 @@ class BookingModel(BaseModel):
 
 @router.post("/createProperty/")
 def create_property(property: PropertyModel, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["owner", "agent", "admin", 'guest']))):
-    new_property = models.Property(PropertyName=property.PropertyName,
+    new_property = models.Property(owner_id=current_user.id,
+                                   PropertyName=property.PropertyName,
                                    Description=property.Description,
                                    price=property.price,
                                    owner_price=property.owner_price,
@@ -101,8 +102,11 @@ def get_properties(db: Session = Depends(get_db),):
 
 
 @router.get("/personal/properties/")
-def get_properties(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    properties = db.query(models.Property).all()
+def get_personal_properties(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    """Get all properties created by the current user"""
+    properties = db.query(models.Property).filter(
+        models.Property.owner_id == current_user.id
+    ).all()
     return properties
 
 
@@ -138,14 +142,17 @@ def delete_property(property_id: int, db: Session = Depends(get_db), current_use
 @router.post("/book/")
 def book_property(booking: BookingModel, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """
-    Book a property and calculate 3% commission
+    Book a property and calculate 3% commission.
+    Also updates property availability:
+    - If booking covers entire available period → status becomes "booked"
+    - If booking is partial → available_from is updated to check_out date
 
     Example:
-    - Guest books from March 6 to March 8 (2 nights)
-    - Property price per night: 10,000
-    - Total price: 10,000 * 2 = 20,000
-    - Commission (3%): 20,000 * 0.03 = 600
-    - Net price: 20,000 - 600 = 19,400
+    - Property available: March 10 - March 20
+    - Guest books: March 10 - March 13
+    - After booking: Property available from March 13 - March 20
+    - Another guest books: March 13 - March 20
+    - After booking: Status becomes "booked"
     """
 
     # Validate dates
@@ -160,6 +167,14 @@ def book_property(booking: BookingModel, db: Session = Depends(get_db), current_
 
     if not db_property:
         raise HTTPException(status_code=404, detail="Property not found")
+
+    # Check if property is available for the requested dates
+    if db_property.available_from and db_property.available_to:
+        if booking.check_in < db_property.available_from or booking.check_out > db_property.available_to:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Property not available for requested dates. Available: {db_property.available_from} to {db_property.available_to}"
+            )
 
     # Calculate number of nights
     num_nights = (booking.check_out - booking.check_in).days
@@ -185,6 +200,26 @@ def book_property(booking: BookingModel, db: Session = Depends(get_db), current_
     db.add(new_booking)
     db.commit()
     db.refresh(new_booking)
+
+    # Update property availability after booking
+    if db_property.available_from and db_property.available_to:
+        # Check if the booking covers the entire available period
+        if booking.check_in == db_property.available_from and booking.check_out == db_property.available_to:
+            # Entire period is booked
+            db_property.status = "booked"
+            db_property.available_from = None
+            db_property.available_to = None
+        else:
+            # Partial booking - update available_from to the check_out date
+            db_property.available_from = booking.check_out
+            # If available_from reaches or passes available_to, mark as booked
+            if db_property.available_from >= db_property.available_to:
+                db_property.status = "booked"
+                db_property.available_from = None
+                db_property.available_to = None
+
+    db.commit()
+    db.refresh(db_property)
 
     # Create notifications for all admins, owners, and agents
     privileged_users = db.query(models.User).filter(
@@ -221,8 +256,11 @@ def book_property(booking: BookingModel, db: Session = Depends(get_db), current_
         "total_price": total_price,
         "commission_3_percent": round(commission, 2),
         "net_price": round(net_price, 2),
+        "property_status": db_property.status,
+        "property_available_from": db_property.available_from,
+        "property_available_to": db_property.available_to,
         "notifications_sent_to": len(privileged_users),
-        "message": f"Booking confirmed! Commission of {round(commission, 2)} (3%) has been deducted from total price. Notifications sent to all admins, owners, and agents."
+        "message": f"Booking confirmed! Commission of {round(commission, 2)} (3%) has been deducted from total price. Property availability updated. Notifications sent to all admins, owners, and agents."
     }
 
 
